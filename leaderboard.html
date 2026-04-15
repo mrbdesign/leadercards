@@ -314,9 +314,10 @@ function perform_swap(){
  	$b.find('.score').text(scoreA);
 
 	// update data[] for persistence
-		var iconA = $a.find('.icon').attr('src').replace('images/', '');
-	save_data_to_storage(
-		var iconB = $b.find('.icon').attr('src').replace('images/', '');
+	var iconA = $a.find('.icon').attr('src').replace('images/', '');
+	var nameA = $a.find('.nickname').text();
+	var iconB = $b.find('.icon').attr('src').replace('images/', '');
+	var nameB = $b.find('.nickname').text();
 	data.forEach(function(person){
 		if (person.icon === iconA && person.nickname === nameA) {
 			person.score = scoreB;
@@ -326,7 +327,7 @@ function perform_swap(){
 		}
 	});
 
-	localStorage.setItem('leaderboard_data', JSON.stringify(data));
+	save_data_to_storage();
 	sort_leaderboard();
 }
 
@@ -583,7 +584,7 @@ function initialize_person_btn_listeners() {
 			for (i=current_score ; i>=target_score ; i--) {
 				$score.text(i);
 				await sleep(40);
-		save_data_to_storage(
+			}
 		}
 		sort_leaderboard();
 
@@ -594,7 +595,7 @@ function initialize_person_btn_listeners() {
 			}
 		})
 		// save data to local storage
-		localStorage.setItem('leaderboard_data', JSON.stringify(data));
+		save_data_to_storage();
 	});
 }
 
@@ -694,6 +695,8 @@ function test_local_storage(){
         localStorage.setItem(test, test);
         localStorage.removeItem(test);
         local_storage_available = true;
+    } catch(e) {
+        local_storage_available = false;
         console.warn('localStorage is not available. Data will not persist across page refreshes.');
     }
 }
@@ -709,11 +712,9 @@ function save_data_to_storage() {
 		return true;
 	} catch(e) {
 		console.error('Error saving data to localStorage:', e);
-		// localStorage might be full or disabled
+		local_storage_available = false;
 		return false;
-	} catch(e) {
-        local_storage_available = false;
-    }
+	}
 }
 
 function compare(personA, personB) {
